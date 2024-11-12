@@ -1,0 +1,54 @@
+# Define the regions (e.g., states) and their neighbors
+regions = {
+    "WA": ["NT", "SA"],
+    "NT": ["WA", "SA", "Q"],
+    "SA": ["WA", "NT", "Q", "NSW", "V"],
+    "Q": ["NT", "SA", "NSW"],
+    "NSW": ["Q", "SA", "V"],
+    "V": ["SA", "NSW"],
+    "T": []  # Tasmania has no neighboring regions
+}
+
+# Define the possible colors (domain)
+colors = ["Red", "Green", "Blue"]
+
+# Initialize a dictionary to store the color assignment for each region
+color_assignment = {}
+
+def is_safe(region, color):
+    """Check if assigning a color to a region does not violate any constraints."""
+    for neighbor in regions[region]:
+        if neighbor in color_assignment and color_assignment[neighbor] == color:
+            return False
+    return True
+
+def csp_backtracking():
+    """Use backtracking to solve the CSP problem."""
+    # Check if all regions have been assigned a color
+    if len(color_assignment) == len(regions):
+        return True
+
+    # Select the next unassigned region
+    unassigned_regions = [region for region in regions if region not in color_assignment]
+    region = unassigned_regions[0]
+
+    # Try each color for the region
+    for color in colors:
+        if is_safe(region, color):
+            # Assign the color and proceed with the next assignment
+            color_assignment[region] = color
+            if csp_backtracking():
+                return True
+            # If assignment failed, remove the color (backtrack)
+            del color_assignment[region]
+
+    # If no color can be assigned, return False to trigger backtracking
+    return False
+
+# Solve the problem
+if csp_backtracking():
+    print("Color assignment for each region:")
+    for region, color in color_assignment.items():
+        print(f"{region}: {color}")
+else:
+    print("No solution found.")
